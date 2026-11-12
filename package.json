@@ -1,0 +1,52 @@
+{
+  "name": "dsh-svn-review",
+  "version": "0.1.0",
+  "displayName": "DSH SVN Review",
+  "description": "Scope DeepSeek Harness code review to your real SVN change set. Reads .svn/wc.db directly, so it works without svn.exe, and keeps the agent from touching files you did not modify.",
+  "keywords": [
+    "dsh-plugin",
+    "deepseek-harness",
+    "cordis",
+    "svn",
+    "subversion",
+    "code-review",
+    "diff",
+    "working-copy",
+    "tortoisesvn"
+  ],
+  "type": "module",
+  "license": "MIT",
+  "main": "lib/index.js",
+  "scripts": {
+    "test": "node --test"
+  },
+  "exports": {
+    ".": "./lib/index.js",
+    "./cordis.patch.yml": "./cordis.patch.yml",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "lib",
+    "cordis.patch.yml",
+    "README.md",
+    "README.zh.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": "^22.5.0 || >=23.4.0",
+    "dsh": ">=0.1.0-rc.6"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/luckcat777/dsh-svn-review.git"
+  },
+  "homepage": "https://github.com/luckcat777/dsh-svn-review#readme",
+  "bugs": {
+    "url": "https://github.com/luckcat777/dsh-svn-review/issues"
+  }
+}

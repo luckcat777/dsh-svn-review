@@ -1,0 +1,12 @@
+# dsh-svn-review: bind code review to the real SVN change set.
+#
+# Registers a single tool, `svn_change_set`, which reads the working copy's
+# `.svn/wc.db` directly instead of shelling out to `svn`. That matters on
+# machines where only the TortoiseSVN GUI is installed and `svn.exe` is not on
+# PATH: the agent still needs to know which files the author actually touched.
+#
+# No configuration: the tool takes an optional `path` and walks up to the
+# working copy root on its own.
+- insert:
+    - id: svn-review
+      name: dsh-svn-review
