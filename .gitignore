@@ -9,3 +9,6 @@ reports/
 PUBLISH.md
 pr-entry.md
 rules/local.json
+
+# 本机维护脚本（用 GitHub API 代替失效的 git push），不随包发布
+tools/*.ps1
