@@ -157,4 +157,44 @@ test('源码文件带 NUL 字节时，自动改由子进程判定', async (t) =>
 
   const changeSet = await readChangeSet(root)
   assert.equal(changeSet.engine, 'python', '读到密文时必须交给子进程，不能自己算哈希')
-  assert.deepEqual(changeSet.counts, { M: 2, A: 1, D: 0, '!': 1, C: 1 })})
+  assert.deepEqual(changeSet.counts, { M: 2, A: 1, D: 0, '!': 1, C: 1 })
+})
+
+test('变更集大到不像真的时，交给子进程复核', async (t) => {
+  if (!hasPython()) {
+    t.skip('没有可用的 python')
+    return
+  }
+
+  // 探针可能刚好没命中被加密的文件（工作副本开头往往是配置），
+  // 所以还有一道与加密格式无关的判据：动了大半个工作副本的结论本身就不可信。
+  const root = mkdtempSync(join(tmpdir(), 'dsh-svn-review-many-'))
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+  mkdirSync(join(root, '.svn'), { recursive: true })
+
+  const db = new DatabaseSync(join(root, '.svn', 'wc.db'))
+  db.exec(`CREATE TABLE NODES (
+    local_relpath TEXT, op_depth INTEGER, kind TEXT, presence TEXT,
+    checksum TEXT, translated_size INTEGER, last_mod_time INTEGER, revision INTEGER);`)
+  db.exec('CREATE TABLE PRISTINE (checksum TEXT, size INTEGER);')
+  db.exec(`CREATE TABLE ACTUAL_NODE (local_relpath TEXT, conflict_old TEXT,
+    conflict_new TEXT, tree_conflict_data TEXT, conflict_data TEXT);`)
+  db.exec('CREATE TABLE REPOSITORY (root TEXT);')
+
+  const insertNode = db.prepare('INSERT INTO NODES VALUES (?,?,?,?,?,?,?,?)')
+  const insertPristine = db.prepare('INSERT INTO PRISTINE VALUES (?,?)')
+  const future = Date.now() * 1000 + 60_000_000
+  const original = 'original\n'
+  for (let index = 0; index < 60; index += 1) {
+    const name = `f${String(index).padStart(2, '0')}.txt`
+    writeFileSync(join(root, name), 'changed\n')
+    insertNode.run(name, 0, 'file', 'normal', checksum(original), original.length, future, 100)
+    insertPristine.run(checksum(original), original.length)
+  }
+  db.prepare('INSERT INTO REPOSITORY VALUES (?)').run('svn://example/repo')
+  db.close()
+
+  const changeSet = await readChangeSet(root)
+  assert.equal(changeSet.engine, 'python', '变更集异常时不能直接把结果甩给使用者')
+  assert.equal(changeSet.counts.M, 60, '子进程复核后仍是真实的 60 个改动')
+})
