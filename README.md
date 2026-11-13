@@ -52,6 +52,16 @@ Detected from build and project files:
 | Go | `go.mod` | `go` directive |
 | Rust | `Cargo.toml` | `edition` |
 | Python | `pyproject.toml`, `.python-version` | `requires-python` |
+| Kotlin | `build.gradle(.kts)` kotlin plugin, `*.kt` | plugin version |
+| HarmonyOS ArkTS | `build-profile.json5`, `module.json5`, `*.ets` | `compatibleSdkVersion` |
+| Swift | `Package.swift`, `*.xcodeproj` | `swift-tools-version` |
+| Dart / Flutter | `pubspec.yaml` | `sdk` constraint |
+| PHP / Ruby / Scala | `composer.json`, `Gemfile`, `build.sbt` | `require.php`, `ruby`, `scalaVersion` |
+| **anything else** | source file extensions | none — falls back to `generic.md` |
+
+Detection runs two passes: build files give an authoritative **version**, and an extension census
+(3000 files, 6 levels, skipping vendored directories) catches languages that ship no build file at
+all — a Lua or Elixir repo still lands on a profile instead of "unknown".
 
 Build scripts are often GBK-encoded, so matching happens on the raw bytes rather than a decoded string — the ASCII directives survive either way.
 
@@ -66,9 +76,15 @@ rules/
 ├─ PROMPT.md                ready-to-paste commands
 ├─ languages/
 │  ├─ java8.md              Java 8
+│  ├─ kotlin.md             Kotlin
 │  ├─ cpp.md                C / C++
+│  ├─ csharp.md             C#
 │  ├─ javascript.md         JavaScript / TypeScript
-│  └─ csharp.md             C#
+│  ├─ rust.md               Rust
+│  ├─ go.md                 Go
+│  ├─ python.md             Python
+│  ├─ arkts.md              HarmonyOS ArkTS
+│  └─ generic.md            fallback for any other language
 └─ projects/_template.md    template for a project-specific profile
 ```
 

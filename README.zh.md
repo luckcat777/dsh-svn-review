@@ -52,6 +52,15 @@ dsh plugin --profile web add dsh-svn-review
 | Go | `go.mod` | `go` 指令 |
 | Rust | `Cargo.toml` | `edition` |
 | Python | `pyproject.toml`、`.python-version` | `requires-python` |
+| Kotlin | `build.gradle(.kts)` 的 kotlin 插件、`*.kt` | 插件版本 |
+| 鸿蒙 ArkTS | `build-profile.json5`、`module.json5`、`*.ets` | `compatibleSdkVersion` |
+| Swift | `Package.swift`、`*.xcodeproj` | `swift-tools-version` |
+| Dart / Flutter | `pubspec.yaml` | `sdk` 约束 |
+| PHP / Ruby / Scala | `composer.json`、`Gemfile`、`build.sbt` | `require.php`、`ruby`、`scalaVersion` |
+| **其它任何语言** | 源码扩展名 | 无 → 落到 `generic.md` |
+
+识别跑两路：构建文件给**权威版本**，扩展名普查（3000 个文件、6 层、跳过 vendor 目录）兜住"根本没有构建文件"的语言——
+只有 `.lua` 或 `.ex` 的仓库也能落到档案上，而不是返回"未知"。
 
 构建脚本经常是 GBK 编码，所以判定是在**原始字节**上做的，不走解码——关键指令都是 ASCII，两条路径都能命中。
 
@@ -82,9 +91,15 @@ rules/
 ├─ PROMPT.md                可直接复制的命令模板
 ├─ languages/
 │  ├─ java8.md              Java 8
+│  ├─ kotlin.md             Kotlin
 │  ├─ cpp.md                C / C++
+│  ├─ csharp.md             C#
 │  ├─ javascript.md         JavaScript / TypeScript
-│  └─ csharp.md             C#
+│  ├─ rust.md               Rust
+│  ├─ go.md                 Go
+│  ├─ python.md             Python
+│  ├─ arkts.md              鸿蒙 ArkTS
+│  └─ generic.md            其它任何语言的兜底
 └─ projects/_template.md    项目档案模板
 ```
 

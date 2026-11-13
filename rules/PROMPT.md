@@ -51,7 +51,9 @@
 
 1. 先跑 tools\run-audit.cmd，复述本次变更了哪几个文件
 2. 读 REVIEW_RULES.md / SVN_WORKFLOW.md，按变更文件的扩展名读对应语言档案
-   （.java→languages\java8.md，.cpp/.h→cpp.md，.js/.ts→javascript.md，.cs→csharp.md），
+   （.java→java8.md，.kt→kotlin.md，.cpp/.h→cpp.md，.cs→csharp.md，
+     .js/.ts→javascript.md，.rs→rust.md，.go→go.md，.py→python.md，.ets→arkts.md，
+     其它语言→generic.md），
    有项目档案再读 projects\x_main.md，并读 REVIEW_RULES.md 附录 A 的裁决记录
 3. 只审变更集内的 diff 行，变更集外的文件不审、不改
 4. 每条 P0/P1 必须给出 ①②③④，给不出就降为 P2

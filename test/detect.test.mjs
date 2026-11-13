@@ -138,3 +138,82 @@ test('没有任何标记的目录：不瞎猜', async (t) => {
   assert.equal(result.stacks.length, 0)
   assert.ok(result.notes.length > 0)
 })
+
+test('Rust：读 Cargo.toml 的 edition', async (t) => {
+  const root = fixture({
+    'Cargo.toml': '[package]\nname = "demo"\nedition = "2021"\n',
+    'src/main.rs': 'fn main() {}\n',
+  })
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  const rust = detectProject(root).stacks.find((stack) => stack.language === 'rust')
+  assert.equal(rust.version, 'edition 2021')
+  assert.equal(profileForLanguage('rust'), 'rust')
+})
+
+test('鸿蒙 ArkTS：读 build-profile.json5 的 compatibleSdkVersion', async (t) => {
+  const root = fixture({
+    'build-profile.json5': '{"app":{"products":[{"compatibleSdkVersion":"5.0.0(12)"}]}}',
+    'entry/src/main/ets/pages/Index.ets': '@Entry\n@Component\nstruct Index {}\n',
+  })
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  const arkts = detectProject(root).stacks.find((stack) => stack.language === 'arkts')
+  assert.ok(arkts, '应识别出 arkts')
+  assert.match(arkts.version, /5\.0\.0/)
+  assert.equal(profileForLanguage('arkts'), 'arkts')
+})
+
+test('Kotlin 工程不能被误判成 Java', async (t) => {
+  const root = fixture({
+    'build.gradle.kts': 'plugins {\n  kotlin("jvm") version "1.9.22"\n}\n',
+    'src/main/kotlin/Main.kt': 'fun main() {}\n',
+  })
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  const result = detectProject(root)
+  assert.equal(result.stacks.some((stack) => stack.language === 'java'), false, '没有 java 插件就不该报 Java')
+  const kotlin = result.stacks.find((stack) => stack.language === 'kotlin')
+  assert.equal(kotlin.version, '1.9.22')
+  assert.equal(profileForLanguage('kotlin'), 'kotlin')
+})
+
+test('没有构建文件时按扩展名认语言（Lua）', async (t) => {
+  const root = fixture({ 'src/a.lua': 'return 1\n', 'src/b.lua': 'return 2\n' })
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  const lua = detectProject(root).stacks.find((stack) => stack.language === 'lua')
+  assert.ok(lua, '扩展名普查应认出 lua')
+  assert.equal(lua.version, null)
+  // 没有专用档案 → 走通用兜底
+  assert.equal(profileForLanguage('lua'), null)
+})
+
+test('Go 版本影响循环变量语义，必须读出来', async (t) => {
+  const root = fixture({ 'go.mod': 'module example.com/demo\n\ngo 1.22\n', 'main.go': 'package main\n' })
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  const go = detectProject(root).stacks.find((stack) => stack.language === 'go')
+  assert.equal(go.version, '1.22')
+  assert.equal(profileForLanguage('go'), 'go')
+})
+
+test('Python 读 requires-python', async (t) => {
+  const root = fixture({
+    'pyproject.toml': '[project]\nrequires-python = ">=3.11"\n',
+    'app.py': 'print(1)\n',
+  })
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  const python = detectProject(root).stacks.find((stack) => stack.language === 'python')
+  assert.equal(python.version, '>=3.11')
+  assert.equal(profileForLanguage('python'), 'python')
+})
+
+test('未知语言也有兜底档案路径，不会"无档案可读"', async () => {
+  // generic 档案按约定存在；这里只断言映射层的行为
+  assert.equal(profileForLanguage('zig'), null)
+  assert.equal(profileForLanguage('haskell'), null)
+  assert.equal(profileForLanguage('java'), 'java8')
+  assert.equal(profileForLanguage('typescript'), 'javascript')
+})

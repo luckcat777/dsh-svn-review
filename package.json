@@ -2,7 +2,7 @@
   "name": "dsh-svn-review",
   "version": "0.2.0",
   "displayName": "DSH SVN Review",
-  "description": "Scope DeepSeek Harness code review to your real SVN change set. Reads .svn/wc.db directly, so it works without svn.exe, and keeps the agent from touching files you did not modify.",
+  "description": "SVN change-set scoping plus language and version detection for DeepSeek Harness code review: reads .svn/wc.db directly (no svn.exe), pins down the project language and version, and hands over the matching review rules so findings are judged by that language instead of generic ones.",
   "keywords": [
     "dsh-plugin",
     "deepseek-harness",
@@ -12,7 +12,17 @@
     "code-review",
     "diff",
     "working-copy",
-    "tortoisesvn"
+    "tortoisesvn",
+    "java",
+    "kotlin",
+    "rust",
+    "golang",
+    "python",
+    "csharp",
+    "cpp",
+    "typescript",
+    "harmonyos",
+    "arkts"
   ],
   "type": "module",
   "license": "MIT",

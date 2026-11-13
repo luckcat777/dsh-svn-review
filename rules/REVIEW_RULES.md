@@ -149,6 +149,11 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 | C++ | 解引用空指针是 UB，但要看是否已有 `assert`/`not_null` 约定 | `languages/cpp.md` §3 |
 | JS/TS | 若已用 `?.`/`??` 或 TS `strict`，多半不成立 | `languages/javascript.md` §3 |
 | C# | 若已启用可空引用类型，编译器已保证 | `languages/csharp.md` §3.5 |
+| Kotlin | 只有 `!!` 或平台类型（Java 互操作）才可能为空 | `languages/kotlin.md` §3.1 |
+| Rust | `Option`/`Result` 逼你处理，`unwrap()` 才是风险点 | `languages/rust.md` §3.1 |
+| Go | nil map 写入必 panic；nil 指针解引用 | `languages/go.md` §3.2 |
+| Python | `None` 是"没有值"，不是错误 | `languages/python.md` §2 |
+| 鸿蒙 ArkTS | ArkTS 禁止 `any` 与动态属性，建议前先确认能编译 | `languages/arkts.md` §4 |
 
 **这是最容易产生误报的地方：先用语言档案确认"这在该语言里算不算问题"，再决定要不要写进报告。**
 
@@ -172,10 +177,18 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 
 **由对应语言档案定义**，本文件不重复。
 
-- Java 8 → `languages/java8.md` §4
-- C++ → `languages/cpp.md` §4
-- JavaScript/TypeScript → `languages/javascript.md` §4
-- C# → `languages/csharp.md` §4
+| 语言 | 档案 |
+|---|---|
+| Java 8 | `languages/java8.md` §4 |
+| Kotlin | `languages/kotlin.md` §4 |
+| C / C++ | `languages/cpp.md` §4 |
+| C# | `languages/csharp.md` §4 |
+| JavaScript / TypeScript | `languages/javascript.md` §4 |
+| Rust | `languages/rust.md` §4 |
+| Go | `languages/go.md` §4 |
+| Python | `languages/python.md` §4 |
+| 鸿蒙 ArkTS | `languages/arkts.md` §4 |
+| **其它任何语言** | `languages/generic.md`（兜底：只有语言无关的判据，没有误报清单） |
 
 典型形态：对 Java 8 建议 `var`/`record`、对 C++98 建议智能指针、对 JS 建议加锁、对 C# 建议全面 `async` 化 —— 都是**语言层误报**。
 
