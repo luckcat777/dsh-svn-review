@@ -7,6 +7,7 @@
  */
 import { test } from 'node:test'
 import assert from 'node:assert/strict'
+import { spawnSync } from 'node:child_process'
 import { createHash } from 'node:crypto'
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
@@ -107,3 +108,53 @@ test('不在工作副本里时给出可读的错误', async () => {
     rmSync(outside, { recursive: true, force: true })
   }
 })
+
+/** python 是否可用——子进程通道的测试没有它就跳过，不能因为环境缺 python 就红。 */
+function hasPython() {
+  for (const interpreter of ['python', 'python3', 'py']) {
+    const result = spawnSync(interpreter, ['--version'], { stdio: 'ignore', windowsHide: true })
+    if (result.error === undefined && result.status === 0) return true
+  }
+  return false
+}
+
+test('强制走子进程时结果与直接读一致', async (t) => {
+  if (!hasPython()) {
+    t.skip('没有可用的 python')
+    return
+  }
+  const root = makeWorkingCopy()
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  const direct = await readChangeSet(root)
+  const delegated = await readChangeSet(root, { forceFallback: true })
+
+  assert.equal(delegated.engine, 'python')
+  assert.deepEqual(delegated.counts, direct.counts)
+  assert.deepEqual(
+    delegated.files.map((file) => `${file.status} ${file.path}`).sort(),
+    direct.files.map((file) => `${file.status} ${file.path}`).sort(),
+  )
+})
+
+test('源码文件带 NUL 字节时，自动改由子进程判定', async (t) => {
+  if (!hasPython()) {
+    t.skip('没有可用的 python')
+    return
+  }
+  const root = makeWorkingCopy()
+  t.after(() => rmSync(root, { recursive: true, force: true }))
+
+  // 模拟透明加密客户端：白名单外的进程读到的是带文件头的容器，不是明文。
+  const encrypted = Buffer.from('%TSD-Header-###%\u0000\u0000\u0000binary-ish', 'latin1')
+  writeFileSync(join(root, 'same.txt'), encrypted)
+  // 让基线与磁盘内容一致：这条只验证"会不会改道去子进程"，不验证内容判定——
+  // 真实环境里 python 读到的是明文，哈希本来就对得上。
+  const db = new DatabaseSync(join(root, '.svn', 'wc.db'))
+  db.prepare('UPDATE NODES SET checksum = ?, translated_size = ? WHERE local_relpath = ?')
+    .run(checksum(encrypted.toString('latin1')), encrypted.length, 'same.txt')
+  db.close()
+
+  const changeSet = await readChangeSet(root)
+  assert.equal(changeSet.engine, 'python', '读到密文时必须交给子进程，不能自己算哈希')
+  assert.deepEqual(changeSet.counts, { M: 2, A: 1, D: 0, '!': 1, C: 1 })})
