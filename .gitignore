@@ -8,3 +8,4 @@ reports/
 # 本地操作说明，不进仓库
 PUBLISH.md
 pr-entry.md
+rules/local.json

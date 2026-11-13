@@ -1,6 +1,6 @@
 {
   "name": "dsh-svn-review",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "displayName": "DSH SVN Review",
   "description": "Scope DeepSeek Harness code review to your real SVN change set. Reads .svn/wc.db directly, so it works without svn.exe, and keeps the agent from touching files you did not modify.",
   "keywords": [
@@ -18,7 +18,8 @@
   "license": "MIT",
   "main": "lib/index.js",
   "scripts": {
-    "test": "node --test"
+    "test": "node --test",
+    "sync:rules": "node tools/sync-rules.mjs"
   },
   "exports": {
     ".": "./lib/index.js",
@@ -27,6 +28,8 @@
   },
   "files": [
     "lib",
+    "rules",
+    "!rules/local.json",
     "cordis.patch.yml",
     "README.md",
     "README.zh.md",
