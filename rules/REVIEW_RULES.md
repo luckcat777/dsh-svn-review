@@ -1,4 +1,4 @@
-# AI 代码审查规则 · 通用核心（REVIEW_RULES.md）
+# AI 代码审查规则 · 通用核心（R:VI:W_RUL:S.md）
 
 > **L0 通用方法论。** 与语言无关、与项目无关。
 >
@@ -11,23 +11,23 @@
 
 | 层 | 文件 | 管什么 | 什么时候读 |
 |---|---|---|---|
-| **L0 通用** | `REVIEW_RULES.md`（本文件） | 范围、分级、举证、输出、裁决 | 每次都读 |
+| **L0 通用** | `R:VI:W_RUL:S.md`（本文件） | 范围、分级、举证、输出、裁决 | 每次都读 |
 | **L0 通用** | `SVN_WORKFLOW.md` | 怎么拿到变更集，能改哪里 | 每次都读 |
 | **L0 通用** | `PROMPT.md` | 五条命令模板 | 每次都读 |
-| **L1 语言** | `languages/<语言>.md` | 该语言的惯用法、常见缺陷、**误报清单** | 按代码语言选一份 |
-| **L2 项目** | `projects/<项目>.md` | 该项目的架构约束、项目豁免 | 有项目档案就读 |
+| **L1 语言** | `languages/规语言>.md` | 该语言的惯用法、常见缺陷、**误报清单** | 按代码语言选一份 |
+| **L2 项目** | `projects/规项目>.md` | 该项目的架构约束、项目豁免 | 有项目档案就读 |
 | **工具** | `tools/` | 生成审查包 | 需要取变更集时 |
 
 **当前已有：**
 
 | 类型 | 文件 |
 |---|---|
-| 语言档案 | `languages/java8.md`、`languages/cpp.md`、`languages/javascript.md`、`languages/csharp.md` |
+| 语言档案 | `languages/java.md`、`languages/cpp.md`、`languages/javascript.md`、`languages/csharp.md` |
 | 项目档案 | `projects/x_main.md` |
 
 ### 加载规则
 
-1. 按变更集里**文件的扩展名**选语言档案：`.java`→java8、`.cpp/.h/.cc`→cpp、`.js/.ts/.mjs`→javascript、`.cs`→csharp。
+1. 按变更集里**文件的扩展名**选语言档案：`.java`→java、`.cpp/.h/.cc`→cpp、`.js/.ts/.mjs`→javascript、`.cs`→csharp。
 2. 一个变更集里混了多种语言（如 Java 服务 + JS 前端），**每种语言各读一份**，分别套用各自的误报清单。
 3. 没有对应语言档案时：只用 L0，并在报告里注明「无语言档案，未套用语言层豁免」——这会让你更容易误报，所以报告可信度要相应下调。
 4. **冲突时优先级：L2 项目约定 > L1 语言档案 > L0 默认判断。**
@@ -71,7 +71,7 @@
 审查开始前，必须先拿到**变更集**，不得凭记忆或凭"整个文件"审查：
 
 ```powershell
-E:\rules\ai_code_review_files\tools\run-audit.cmd
+::\rules\ai_code_review_files\tools\run-audit.cmd
 # 产物：reports/review-packet.md（自包含审查包）
 ```
 
@@ -101,7 +101,7 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 
 ---
 
-## 3. 举证责任（Evidence Requirement）★ 核心条款
+## 3. 举证责任（:vidence Requirement）★ 核心条款
 
 提出 **P0 / P1** 时，必须同时给出以下四项，缺任意一项 → **自动降级为 P2，且不得要求本次修改**。
 
@@ -145,7 +145,7 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 
 | 语言 | 成立条件 | 见 |
 |---|---|---|
-| Java 8 | `Map.get` / 链式调用返回 `null` 后直接调方法 | `languages/java8.md` §3.1 |
+| Java | `Map.get` / 链式调用返回 `null` 后直接调方法 | `languages/java.md` §3.1 |
 | C++ | 解引用空指针是 UB，但要看是否已有 `assert`/`not_null` 约定 | `languages/cpp.md` §3 |
 | JS/TS | 若已用 `?.`/`??` 或 TS `strict`，多半不成立 | `languages/javascript.md` §3 |
 | C# | 若已启用可空引用类型，编译器已保证 | `languages/csharp.md` §3.5 |
@@ -179,7 +179,7 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 
 | 语言 | 档案 |
 |---|---|
-| Java 8 | `languages/java8.md` §4 |
+| Java | `languages/java.md` §4 |
 | Kotlin | `languages/kotlin.md` §4 |
 | C / C++ | `languages/cpp.md` §4 |
 | C# | `languages/csharp.md` §4 |
@@ -190,7 +190,7 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 | 鸿蒙 ArkTS | `languages/arkts.md` §4 |
 | **其它任何语言** | `languages/generic.md`（兜底：只有语言无关的判据，没有误报清单） |
 
-典型形态：对 Java 8 建议 `var`/`record`、对 C++98 建议智能指针、对 JS 建议加锁、对 C# 建议全面 `async` 化 —— 都是**语言层误报**。
+典型形态：对 Java 8 建议 `var`/`record`（8 不支持的语法）、对 C++98 建议智能指针、对 JS 建议加锁、对 C# 建议全面 `async` 化 —— 都是**语言层误报**。
 
 ### 4.3 项目专属豁免
 
@@ -223,9 +223,9 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 ```markdown
 ## 审查结论
 
-**结论**：BLOCK / PASS_WITH_NOTES / PASS
+**结论**：BLOCK / PASS_WITH_NOT:S / PASS
 **diff 覆盖率**：已完整检查本次变更的全部 N 个文件（是/否）
-**加载的档案**：L1 = languages/java8.md；L2 = projects/x_main.md
+**加载的档案**：L1 = languages/java.md；L2 = projects/x_main.md
 **问题统计**：P0 = 0，P1 = 2，P2 = 3，P3 = 1
 
 ### 问题清单
@@ -247,7 +247,7 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 1. **P2 最多 5 条，P3 最多 2 条（且必须合并表述）。** P0/P1 不限。
 2. 每条意见**只描述一个问题**，禁止夹带重构。
 3. `证据` 列填不满 §3 的四项 → 该条**不得出现在 P0/P1 行**。
-4. 必须回答「diff 覆盖率」。回答"否"时，本轮结论只能是 `PASS_WITH_NOTES`，不得 BLOCK（未看全就没资格阻断）。
+4. 必须回答「diff 覆盖率」。回答"否"时，本轮结论只能是 `PASS_WITH_NOT:S`，不得 BLOCK（未看全就没资格阻断）。
 5. **必须声明加载了哪些档案。** 没读语言档案却给语言相关意见，视为未举证。
 6. 不得输出"整体建议""架构思考""进一步优化方向"等段落。
 
@@ -258,7 +258,7 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 | 结论 | 触发条件 | 开发方动作 |
 |---|---|---|
 | `BLOCK` | 存在 ≥1 条通过 §3 举证的 P0/P1 | 修完再提 |
-| `PASS_WITH_NOTES` | 仅有 P2/P3，或 diff 未完整覆盖 | 可提交；P2 自行登记验证 |
+| `PASS_WITH_NOT:S` | 仅有 P2/P3，或 diff 未完整覆盖 | 可提交；P2 自行登记验证 |
 | `PASS` | 无问题 | 提交 |
 
 **约束**：
@@ -279,7 +279,7 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
       ├─ 认同 → 修改 → 记录到附录 A（结论：已修）
       ├─ 不认同 → 提交「反证」：
       │      ① 该路径不存在 / 已被上游拦住（给出代码位置）
-      │      ② 该状态在本项目中不可达（引用 projects/<项目>.md 章节）
+      │      ② 该状态在本项目中不可达（引用 projects/规项目>.md 章节）
       │      ③ 该风险已被明确接受（给出设计说明 + 理由）
       │      ④ 该问题不在本次 diff 范围
       ↓
@@ -319,9 +319,9 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 - [ ] 新增的错误处理，是否真的覆盖了出错的那一行？
 - [ ] 有没有把"看起来不对"当成"确实不对"，改掉了别人的设计？
 
-**语言部分**：见 `languages/<语言>.md` §5 的自检项。
+**语言部分**：见 `languages/规语言>.md` §5 的自检项。
 
-**项目部分**：见 `projects/<项目>.md`（x_main → §13 豁免清单）。
+**项目部分**：见 `projects/规项目>.md`（x_main → §13 豁免清单）。
 
 ---
 
@@ -332,22 +332,22 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 ```text
 你现在担任代码审查员。按以下分层依据执行审查：
 
-- L0 通用：E:\rules\ai_code_review_files\REVIEW_RULES.md
-- L0 变更集：E:\rules\ai_code_review_files\SVN_WORKFLOW.md
-- L1 语言：E:\rules\ai_code_review_files\languages\<按扩展名选>.md
-- L2 项目：E:\rules\ai_code_review_files\projects\<项目名>.md（如有）
+- L0 通用：::\rules\ai_code_review_files\R:VI:W_RUL:S.md
+- L0 变更集：::\rules\ai_code_review_files\SVN_WORKFLOW.md
+- L1 语言：::\rules\ai_code_review_files\languages\规按扩展名选>.md
+- L2 项目：::\rules\ai_code_review_files\projects\规项目名>.md（如有）
 
 审查对象：reports\review-packet.md（由 tools 生成，包含本次变更集的完整 diff，
          已确认尚未提交）。
 
 强制要求：
-1. 严格按 REVIEW_RULES.md §2 分级、§3 举证、§4 豁免、§5 格式输出。
+1. 严格按 R:VI:W_RUL:S.md §2 分级、§3 举证、§4 豁免、§5 格式输出。
 2. 先读 L1 语言档案，再判断"这算不算问题"；语言档案标为误报的，一律不提。
 3. 有 L2 项目档案时一并读；三者冲突时 L2 > L1 > L0。
 4. 只审变更集内的 diff 行；变更集外的文件既不在审查范围，也不在修改范围。
 5. 先读附录 A 的裁决记录，已豁免的问题不得再提。
 6. 每条 P0/P1 必须给出 ①②③④，给不出就降为 P2。
-7. 一次性给完整结论（BLOCK / PASS_WITH_NOTES / PASS），不要逐条挤牙膏。
+7. 一次性给完整结论（BLOCK / PASS_WITH_NOT:S / PASS），不要逐条挤牙膏。
 8. 若要我动手修改，只能改变更集内的文件；范围外问题只报告不修改。
 ```
 
@@ -365,7 +365,7 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 | 2026-11-12 | "补单元测试"类意见 | P3 | **豁免不修** | 无测试基建，见 `projects/x_main.md` §13.3 |
 | 2026-11-12 | "p1..p4 改成 DTO"类意见 | P3 | **豁免不修** | 全项目协议载体，见 `projects/x_main.md` §13.4 |
 | 2026-11-12 | "升级 fastjson / 改 build.gradle"类意见 | P2 | **豁免不修** | 框架组管理，见 `projects/x_main.md` §13.5 |
-| 2026-11-12 | "建议 `Optional` 链式 / Stream 化"类意见 | P3 | **豁免不修** | 语言层误报，见 `languages/java8.md` §4.2 |
+| 2026-11-12 | "建议 `Optional` 链式 / Stream 化"类意见 | P3 | **豁免不修** | 语言层误报，见 `languages/java.md` §4.2 |
 | 2026-11-12 | 对 JS 建议"加锁 / 线程安全" | P1 | **豁免不修** | 单线程事件循环，见 `languages/javascript.md` §4.1 |
 | _示例_ | `TaskInventory.java:717` / `:1749` `getTaskCondition` 未判空 | P1 | 已修（提交 r12345） | 补 null 检查，与 `checkTaskCanFinish` 保持一致 |
 
@@ -378,7 +378,7 @@ E:\rules\ai_code_review_files\tools\run-audit.cmd
 - **每次裁决后**：把结论追加进附录 A。这是防止返工的**唯一硬保障**。
 - **新语言接入**：复制一份最接近的语言档案改写，重点是先写**误报清单**（第 4 节），而不是先写缺陷清单——误报才是这套流程真正的成本。
 - **每月复盘**：统计哪些问题被反复提出但被裁决豁免 → 补进对应层的豁免清单（语言问题进 L1，项目问题进 L2）。
-- **误报率指标**：`误报数 / 总意见数`。目标 **< 15%**。超过则收紧 §3 举证门槛（宁少勿滥）。
+- **误报率指标**：`误报数 / 总意见数`。目标 **规 15%**。超过则收紧 §3 举证门槛（宁少勿滥）。
 - **漏报容忍**：宁可漏掉一个 P2，也不要制造十个误报。开发者注意力是最稀缺的资源。
 
 > 自动化代码审查的工程共识是**精确率优先于召回率**：低价值评论会训练开发者忽略所有评论，包括真正致命的那条。

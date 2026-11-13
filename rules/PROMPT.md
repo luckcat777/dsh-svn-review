@@ -47,11 +47,11 @@
 适用：日常提交前过一遍，只要结论和问题清单。
 
 ```text
-基于 SVN 中已经修改的代码，按 E:\rules\ai_code_review_files 下的规则做审查，只审不改。
+基于 SVN 中已经修改的代码，按规则库里的规范做审查，只审不改。
 
 1. 先跑 tools\run-audit.cmd，复述本次变更了哪几个文件
 2. 读 REVIEW_RULES.md / SVN_WORKFLOW.md，按变更文件的扩展名读对应语言档案
-   （.java→java8.md，.kt→kotlin.md，.cpp/.h→cpp.md，.cs→csharp.md，
+   （.java→java.md，.kt→kotlin.md，.cpp/.h→cpp.md，.cs→csharp.md，
      .js/.ts→javascript.md，.rs→rust.md，.go→go.md，.py→python.md，.ets→arkts.md，
      其它语言→generic.md），
    有项目档案再读 projects\x_main.md，并读 REVIEW_RULES.md 附录 A 的裁决记录
@@ -71,7 +71,7 @@
 适用：想知道每条问题怎么来的，再决定改不改。
 
 ```text
-基于 SVN 中已经修改的代码，按 E:\rules\ai_code_review_files 下的规则审查，然后修复。
+基于 SVN 中已经修改的代码，按规则库里的规范审查，然后修复。
 
 1. 先跑 tools\run-audit.cmd，复述本次变更了哪几个文件
 2. 读 REVIEW_RULES.md / SVN_WORKFLOW.md，按扩展名读对应语言档案，有项目档案再读
@@ -92,7 +92,7 @@
 适用：不想看分析，只想要改好的代码。
 
 ```text
-基于 SVN 中已经修改的代码，按 E:\rules\ai_code_review_files 下的规则审查并直接优化改掉，不要写报告。
+基于 SVN 中已经修改的代码，按规则库里的规范审查并直接优化改掉，不要写报告。
 
 1. 先跑 tools\run-audit.cmd 确定变更集
 2. 只动变更集内的文件，变更集外的文件一律不碰
@@ -116,7 +116,7 @@
 适用：改完了再提交一轮，避免重复返工。
 
 ```text
-基于 SVN 中已经修改的代码，这是第 <N> 轮复审，按 E:\rules\ai_code_review_files 下的规则只审增量，不改代码。
+基于 SVN 中已经修改的代码，这是第 <N> 轮复审，按规则库里的规范只审增量，不改代码。
 
 上一轮结论：<BLOCK / PASS_WITH_NOTES>
 上一轮已修：<R1、R2 ...>
@@ -137,7 +137,7 @@
 适用：改动很大（十几个文件），先看整体再决定细不细审。
 
 ```text
-基于 SVN 中已经修改的代码，按 E:\rules\ai_code_review_files 下的规则先给我风险概览，不要逐条展开，也不要改代码。
+基于 SVN 中已经修改的代码，按规则库里的规范先给我风险概览，不要逐条展开，也不要改代码。
 
 1. 先跑 tools\run-audit.cmd
 2. 输出：变更文件清单、每个文件的改动性质（新增/修改/删除，改了什么）

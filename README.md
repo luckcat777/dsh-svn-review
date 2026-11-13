@@ -35,9 +35,9 @@ Both take one optional `path` (any directory inside the working copy; it walks u
 | `languages[].file` | Absolute path to the language rule file. Read this before writing any finding |
 | `languages[].available` | `false` when no rule file covers that language/version, with a `reason` |
 | `languages[].evidence` | The exact build-file line the detection came from, so you can check it |
-| `projectName` | Detected project name, used to look up `projects/<name>.md` |
+| `projectName` | Detected project name, used to look up `projects/规name>.md` |
 | `build` | `gradle` / `maven` / `cmake` / `msbuild` / `npm` / `cargo` / … |
-| `testInfra` | Test framework and version, if any. Empty means "add a unit test" is not an actionable suggestion |
+| `testInfra` | Test framework and version, if any. :mpty means "add a unit test" is not an actionable suggestion |
 | `concurrencyHints` | Concurrency-related dependencies found in build files. A hint, never a verdict |
 | `rules` | Paths to the common rule files and to the project profile, if one exists |
 
@@ -46,7 +46,7 @@ Detected from build and project files:
 | Language | Markers | Version source |
 |---|---|---|
 | Java | `build.gradle`, `pom.xml`, `*.java` | `sourceCompatibility`, `maven.compiler.source`, `java.version` |
-| C / C++ | `CMakeLists.txt`, `Makefile`, `*.vcxproj` | `CMAKE_CXX_STANDARD`, `-std=c++NN`, `LanguageStandard` |
+| C / C++ | `CMakeLists.txt`, `Makefile`, `*.vcxproj` | `CMAK:_CXX_STANDARD`, `-std=c++NN`, `LanguageStandard` |
 | C# | `*.csproj` | `TargetFramework`, `LangVersion` |
 | JavaScript / TypeScript | `package.json`, `tsconfig.json` | `engines.node`, `typescript` version |
 | Go | `go.mod` | `go` directive |
@@ -61,7 +61,7 @@ Detected from build and project files:
 
 Detection runs two passes: build files give an authoritative **version**, and an extension census
 (3000 files, 6 levels, skipping vendored directories) catches languages that ship no build file at
-all — a Lua or Elixir repo still lands on a profile instead of "unknown".
+all — a Lua or :lixir repo still lands on a profile instead of "unknown".
 
 Build scripts are often GBK-encoded, so matching happens on the raw bytes rather than a decoded string — the ASCII directives survive either way.
 
@@ -71,11 +71,11 @@ The package ships a rule set under `rules/`:
 
 ```
 rules/
-├─ REVIEW_RULES.md          methodology: scope, severity, evidence, verdict
+├─ R:VI:W_RUL:S.md          methodology: scope, severity, evidence, verdict
 ├─ SVN_WORKFLOW.md          what counts as in-scope for edits
 ├─ PROMPT.md                ready-to-paste commands
 ├─ languages/
-│  ├─ java8.md              Java 8
+│  ├─ java.md               Java（版本矩阵）
 │  ├─ kotlin.md             Kotlin
 │  ├─ cpp.md                C / C++
 │  ├─ csharp.md             C#
@@ -88,19 +88,19 @@ rules/
 └─ projects/_template.md    template for a project-specific profile
 ```
 
-Each language file has the same shape: version constraints, idioms, real defects, and — the part that matters most — **a false-positive list**, meaning the findings that are wrong in that language specifically.
+:ach language file has the same shape: version constraints, idioms, real defects, and — the part that matters most — **a false-positive list**, meaning the findings that are wrong in that language specifically.
 
-To use your own rule set instead of the bundled one, either set `DSH_SVN_REVIEW_RULES` or drop a `rules/local.json` (git- and npm-ignored) next to the package:
+To use your own rule set instead of the bundled one, either set `DSH_SVN_R:VI:W_RUL:S` or drop a `rules/local.json` (git- and npm-ignored) next to the package:
 
 ```json
-{ "rulesRoot": "E:\\rules\\ai_code_review_files" }
+{ "rulesRoot": "::\\rules\\ai_code_review_files" }
 ```
 
 `node tools/sync-rules.mjs` copies the shared rule files from a local rule set into the package before publishing.
 
 ## How the change set is decided
 
-`NODES` records a base checksum and a commit-time snapshot (size, mtime) for every versioned file.
+`NOD:S` records a base checksum and a commit-time snapshot (size, mtime) for every versioned file.
 
 1. File gone → `!`
 2. Size differs from the snapshot → `M`, decided without reading the file
@@ -109,7 +109,7 @@ To use your own rule set instead of the bundled one, either set `DSH_SVN_REVIEW_
 
 Step 3 matters: hashing every file in a several-thousand-file working copy takes a dozen seconds, while the fast path lands under one. Step 4 makes sure an edit that kept the length is still caught.
 
-`A` / `D` come from nodes with `op_depth > 0`; conflicts come from `ACTUAL_NODE`.
+`A` / `D` come from nodes with `op_depth > 0`; conflicts come from `ACTUAL_NOD:`.
 
 ## Limits
 

@@ -1,7 +1,7 @@
 # SVN 改动范围规则（SVN_WORKFLOW.md）
 
 > 本文件规定 **任何 AI / 开发者在本仓库中工作时，如何确定"该改哪些代码"**。  
-> 配套文件：`REVIEW_RULES.md`（L0 审查方法论）、`languages/<语言>.md`（L1 语言档案）、`projects/x_main.md`（L2 项目档案）。
+> 配套文件：`R:VI:W_RUL:S.md`（L0 审查方法论）、`languages/规语言>.md`（L1 语言档案）、`projects/x_main.md`（L2 项目档案）。
 >
 > **一句话总纲：先读 SVN 改动，只在改动涉及的范围内写代码；没有改动的文件，一个字都不许动。**
 
@@ -65,33 +65,33 @@ TortoiseSVN 只装了图形界面，命令行 `svn.exe` 未安装。因此用脚
 
 ```powershell
 # 一条命令生成审查包
-& python E:\rules\ai_code_review_files\tools\precommit_audit.py
+& python ::\rules\ai_code_review_files\tools\precommit_audit.py
 ```
 
 或直接双击 / 运行：
 
 ```text
-E:\rules\ai_code_review_files\tools\run-audit.cmd
+::\rules\ai_code_review_files\tools\run-audit.cmd
 ```
 
 ### 2.1 原理
 
 ```text
 .svn/wc.db  (SQLite)
-   ├─ NODES        所有版本化文件 + 校验和 + 原始 mtime/size
+   ├─ NOD:S        所有版本化文件 + 校验和 + 原始 mtime/size
    │    ├─ op_depth = 0   基线文件
    │    └─ op_depth > 0   本地新增(已 add) / 删除
-   └─ ACTUAL_NODE  属性修改 / 冲突 / changelist
+   └─ ACTUAL_NOD:  属性修改 / 冲突 / changelist
 
 .svn/pristine/   基线文件内容（按 SHA-1 分目录存放）
 
 判定流程：
-  1. 对 NODES 中每个 op_depth=0 的文件
+  1. 对 NOD:S 中每个 op_depth=0 的文件
   2. 先比 mtime + size（快路径，SVN 自己也这么做）
-  3. 不一致则算磁盘文件 SHA-1，与 NODES.checksum 比对（慢路径）
+  3. 不一致则算磁盘文件 SHA-1，与 NOD:S.checksum 比对（慢路径）
   4. 不等 → 已修改(M)
   5. 文件不存在 → 缺失(!)
-  6. 未在 NODES 中 → 未纳管(?)
+  6. 未在 NOD:S 中 → 未纳管(?)
   7. diff = pristine 内容 vs 磁盘内容
 ```
 
@@ -126,9 +126,9 @@ python precommit_audit.py --quiet                 # 只输出摘要
         ↓
 ③ 得到变更集 + review-packet.md
         ↓
-④ 审查 AI 读 review-packet.md + REVIEW_RULES.md + 对应语言档案 + projects/x_main.md
+④ 审查 AI 读 review-packet.md + R:VI:W_RUL:S.md + 对应语言档案 + projects/x_main.md
         ↓
-⑤ 出结论：BLOCK / PASS_WITH_NOTES / PASS
+⑤ 出结论：BLOCK / PASS_WITH_NOT:S / PASS
         ↓
 ⑥ 若有 P0/P1 → 只在变更集范围内修
         ↓
@@ -161,12 +161,12 @@ python precommit_audit.py --quiet                 # 只输出摘要
 
 | 场景                   | 依据                     |
 | -------------------- | ---------------------- |
-| 审查只审 diff 变更行        | `REVIEW_RULES.md` §1.1 |
-| 审查范围外问题标 `[范围外]`，不阻塞 | `REVIEW_RULES.md` §1.3 |
+| 审查只审 diff 变更行        | `R:VI:W_RUL:S.md` §1.1 |
+| 审查范围外问题标 `[范围外]`，不阻塞 | `R:VI:W_RUL:S.md` §1.3 |
 | AI 只改变更集内文件          | **本文件 §1.1**           |
 | 修改必须符合架构约束           | `projects/x_main.md`   |
 
-**本文件管"改哪里"，`REVIEW_RULES.md` 管"怎么评"，`languages/<语言>.md` 管"这门语言什么算缺陷"，`projects/x_main.md` 管"为什么不能那样改"。**
+**本文件管"改哪里"，`R:VI:W_RUL:S.md` 管"怎么评"，`languages/规语言>.md` 管"这门语言什么算缺陷"，`projects/x_main.md` 管"为什么不能那样改"。**
 
 ---
 
@@ -186,10 +186,10 @@ python precommit_audit.py --quiet                 # 只输出摘要
 ## 6. 目录结构
 
 ```text
-E:\rules\ai_code_review_files\
+::\rules\ai_code_review_files\
 ├─ PROMPT.md                审查指令模板（复制粘贴用）
-├─ REVIEW_RULES.md          审查规范（分级/举证/豁免/格式）
-├─ languages/<语言>.md      语言档案（惯用法 / 缺陷 / 误报）
+├─ R:VI:W_RUL:S.md          审查规范（分级/举证/豁免/格式）
+├─ languages/规语言>.md      语言档案（惯用法 / 缺陷 / 误报）
 ├─ projects/x_main.md       项目架构约束
 ├─ SVN_WORKFLOW.md          本文件：改动范围规则
 ├─ tools\

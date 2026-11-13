@@ -86,3 +86,42 @@ test('output.schema 的 required 都真的定义了对应属性', () => {
     }
   }
 })
+
+test('lib 源码里不许出现写死的盘符路径', async () => {
+  // 用户可能根本没有 E: 盘。规则随包发布、路径一律相对包或用户目录解析，
+  // 写死 `E:\rules\...` 会让别人的插件指向一个不存在的目录，
+  // 而且这种问题在本机永远复现不出来——只能靠测试守住。
+  const { readdirSync, readFileSync } = await import('node:fs')
+  const { dirname, join } = await import('node:path')
+  const { fileURLToPath } = await import('node:url')
+  const libDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'lib')
+
+  const offenders = []
+  for (const entry of readdirSync(libDir)) {
+    if (!entry.endsWith('.js')) continue
+    const text = readFileSync(join(libDir, entry), 'utf8')
+    // 匹配 'E:\' / "D:/" 这类字面量，不匹配注释里的举例说明由下一行白名单兜住。
+    const lines = text.split('\n')
+    // 只认"字符串字面量里的盘符"：['"`] 后面紧跟 X:\ 或 X:/
+    // 这样 `plugin:\s` 这类正则文本不会误报，而 'E:\rules' 会。
+    lines.forEach((line, index) => {
+      if (!/['"`][A-Za-z]:[\\/]/.test(line)) return
+      if (/^\s*(\*|\/\/)/.test(line)) return
+      offenders.push(`${entry}:${index + 1}: ${line.trim()}`)
+    })
+  }
+  assert.deepEqual(offenders, [], `lib 里出现了写死的盘符路径：\n${offenders.join('\n')}`)
+})
+
+test('包内自带规则，缺 E 盘也能解析到档案', async () => {
+  const { existsSync } = await import('node:fs')
+  const { dirname, join } = await import('node:path')
+  const { fileURLToPath } = await import('node:url')
+  const rulesDir = join(dirname(fileURLToPath(import.meta.url)), '..', 'rules')
+
+  for (const relative of ['REVIEW_RULES.md', 'languages/java.md', 'languages/generic.md']) {
+    assert.ok(existsSync(join(rulesDir, relative)), `包内缺少规则文件：rules/${relative}`)
+  }
+  // 旧档案必须已经删掉，否则用户可能读到被取代的那份。
+  assert.equal(existsSync(join(rulesDir, 'languages', 'java8.md')), false, 'java8.md 应已被 java.md 取代')
+})

@@ -108,15 +108,21 @@ test('TypeScript：区分 node 与 typescript 版本，并识别 jest', async (t
   assert.equal(profileSupportsVersion('typescript', ts.version), true)
 })
 
-test('版本不匹配时明确拒绝套用档案', async (t) => {
+test('Java 各版本都套同一份档案，版本矩阵在档案正文里', async (t) => {
   const root = fixture({ 'build.gradle': 'sourceCompatibility = 17\n' })
   t.after(() => rmSync(root, { recursive: true, force: true }))
 
   const java = detectProject(root).stacks.find((stack) => stack.language === 'java')
   assert.equal(java.version, '17')
-  assert.equal(profileSupportsVersion('java', '17'), false, 'Java 17 不应套用 java8 档案')
-  assert.equal(profileSupportsVersion('java', '1.8'), true)
-  assert.equal(profileSupportsVersion('java', '8'), true)
+
+  // 档案按语言分，不按版本分：17 和 8 读同一份 java.md，由正文的版本矩阵区分可用语法。
+  assert.equal(profileForLanguage('java'), 'java')
+  for (const version of ['1.8', '8', '11', '17', '21', '23']) {
+    assert.equal(profileSupportsVersion('java', version), true, `Java ${version} 应有档案可读`)
+  }
+  // 7 及更老没有 lambda/Stream，语法差异太大，明说没有档案比套错好。
+  assert.equal(profileSupportsVersion('java', '7'), false)
+  assert.equal(profileSupportsVersion('java', '1.6'), false)
 })
 
 test('版本未声明时返回 null，不给默认值', async (t) => {
@@ -127,7 +133,8 @@ test('版本未声明时返回 null，不给默认值', async (t) => {
   const java = result.stacks.find((stack) => stack.language === 'java')
   assert.equal(java.version, null)
   assert.ok(result.notes.some((note) => note.includes('版本未在构建文件中声明')))
-  assert.equal(profileSupportsVersion('java', null), false)
+  // 版本未知不等于没有档案：档案正文能按与版本无关的判据审，退回 generic 会丢掉全部语言知识。
+  assert.equal(profileSupportsVersion('java', null), true)
 })
 
 test('没有任何标记的目录：不瞎猜', async (t) => {
@@ -214,6 +221,6 @@ test('未知语言也有兜底档案路径，不会"无档案可读"', async () 
   // generic 档案按约定存在；这里只断言映射层的行为
   assert.equal(profileForLanguage('zig'), null)
   assert.equal(profileForLanguage('haskell'), null)
-  assert.equal(profileForLanguage('java'), 'java8')
+  assert.equal(profileForLanguage('java'), 'java')
   assert.equal(profileForLanguage('typescript'), 'javascript')
 })

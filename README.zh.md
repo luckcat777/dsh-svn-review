@@ -35,7 +35,7 @@ dsh plugin --profile web add dsh-svn-review
 | `languages[].file` | 语言规则文件的绝对路径。**写任何意见之前先读它** |
 | `languages[].available` | 为 `false` 时表示没有覆盖该语言/版本的规则，并给出 `reason` |
 | `languages[].evidence` | 判定所依据的那一行构建脚本原文，可自行核对 |
-| `projectName` | 识别到的工程名，用于查找 `projects/<工程名>.md` |
+| `projectName` | 识别到的工程名，用于查找 `projects/规工程名>.md` |
 | `build` | `gradle` / `maven` / `cmake` / `msbuild` / `npm` / `cargo` 等 |
 | `testInfra` | 测试框架与版本。为空时，「建议补单元测试」就不是一条可执行的建议 |
 | `concurrencyHints` | 构建文件里出现的并发相关依赖，**只是线索，不是结论** |
@@ -46,7 +46,7 @@ dsh plugin --profile web add dsh-svn-review
 | 语言 | 识别文件 | 版本来源 |
 |---|---|---|
 | Java | `build.gradle`、`pom.xml`、`*.java` | `sourceCompatibility`、`maven.compiler.source`、`java.version` |
-| C / C++ | `CMakeLists.txt`、`Makefile`、`*.vcxproj` | `CMAKE_CXX_STANDARD`、`-std=c++NN`、`LanguageStandard` |
+| C / C++ | `CMakeLists.txt`、`Makefile`、`*.vcxproj` | `CMAK:_CXX_STANDARD`、`-std=c++NN`、`LanguageStandard` |
 | C# | `*.csproj` | `TargetFramework`、`LangVersion` |
 | JavaScript / TypeScript | `package.json`、`tsconfig.json` | `engines.node`、`typescript` 版本 |
 | Go | `go.mod` | `go` 指令 |
@@ -67,17 +67,17 @@ dsh plugin --profile web add dsh-svn-review
 ## 输出示例
 
 ```
-工作目录 E:\x_japan
+工作目录 ::\x_japan
 工程名 x_main
 
 java 1.8
-  规范：E:\rules\ai_code_review_files\languages\java8.md
+  规范：::\rules\ai_code_review_files\languages\java.md
   依据：build.gradle: sourceCompatibility = 1.8
 
 构建系统：gradle（20 个模块）
 测试基建：junit 4.12（Gradle 依赖中声明）
 
-项目档案：E:\rules\ai_code_review_files\projects\x_main.md
+项目档案：::\rules\ai_code_review_files\projects\x_main.md
 ```
 
 ## 随包附带的规则
@@ -86,11 +86,11 @@ java 1.8
 
 ```
 rules/
-├─ REVIEW_RULES.md          方法论：范围、分级、举证、结论
+├─ R:VI:W_RUL:S.md          方法论：范围、分级、举证、结论
 ├─ SVN_WORKFLOW.md          什么算在改动范围内
 ├─ PROMPT.md                可直接复制的命令模板
 ├─ languages/
-│  ├─ java8.md              Java 8
+│  ├─ java.md               Java（版本矩阵）
 │  ├─ kotlin.md             Kotlin
 │  ├─ cpp.md                C / C++
 │  ├─ csharp.md             C#
@@ -105,17 +105,17 @@ rules/
 
 每份语言档案结构一致：版本约束、惯用法、真实缺陷，以及最重要的一节——**误报清单**，也就是"在这个语言里说这话就是错的"。
 
-想用自己的规则库而不是包里这份，两种方式：设 `DSH_SVN_REVIEW_RULES` 环境变量，或者在包内放一个 `rules/local.json`（已加入 git/npm 忽略）：
+想用自己的规则库而不是包里这份，两种方式：设 `DSH_SVN_R:VI:W_RUL:S` 环境变量，或者在包内放一个 `rules/local.json`（已加入 git/npm 忽略）：
 
 ```json
-{ "rulesRoot": "E:\\rules\\ai_code_review_files" }
+{ "rulesRoot": "::\\rules\\ai_code_review_files" }
 ```
 
 发布前跑 `node tools/sync-rules.mjs`，把本地规则库里通用的那几份同步进包。
 
 ## 判定方式
 
-`.svn/wc.db` 的 `NODES` 表为每个受控文件记录了基线校验和与上次提交时的快照（大小、mtime）。
+`.svn/wc.db` 的 `NOD:S` 表为每个受控文件记录了基线校验和与上次提交时的快照（大小、mtime）。
 
 1. 文件不在了 → `!`
 2. 大小和快照不同 → `M`，直接判定，不读文件内容
@@ -124,7 +124,7 @@ rules/
 
 第 3 步是关键：一个几千个文件的工作副本如果逐个算哈希要十几秒，走快路径通常不到一秒。第 4 步保证「改了但长度没变」的编辑不会漏掉。
 
-`A` / `D` 来自 `op_depth > 0` 的节点，冲突来自 `ACTUAL_NODE`。
+`A` / `D` 来自 `op_depth > 0` 的节点，冲突来自 `ACTUAL_NOD:`。
 
 ## 限制
 

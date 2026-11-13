@@ -1,6 +1,6 @@
 {
   "name": "dsh-svn-review",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "displayName": "DSH SVN Review",
   "description": "SVN change-set scoping plus language and version detection for DeepSeek Harness code review: reads .svn/wc.db directly (no svn.exe), pins down the project language and version, and hands over the matching review rules so findings are judged by that language instead of generic ones.",
   "keywords": [
