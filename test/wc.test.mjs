@@ -31,7 +31,10 @@ function makeWorkingCopy() {
     'mod.txt': 'old content\n',
     'gap.txt': 'hello\n',
     'gone.txt': 'x\n',
+    // 内容没动，但快照尺寸故意写错——模拟 eol 翻译或复制工作副本后的快照漂移。
+    'drift.txt': 'drift\n',
   }
+  const sizeOverride = { 'drift.txt': 999 }
   for (const [name, content] of Object.entries(base)) {
     writeFileSync(join(root, name), content)
   }
@@ -55,7 +58,7 @@ function makeWorkingCopy() {
   // 快照时间故意放到未来，让 mtime 快路径失效，强制走内容比对。
   const future = Date.now() * 1000 + 60_000_000
   for (const [name, content] of Object.entries(base)) {
-    insertNode.run(name, 0, 'file', 'normal', checksum(content), content.length, future, 100)
+    insertNode.run(name, 0, 'file', 'normal', checksum(content), sizeOverride[name] ?? content.length, future, 100)
     insertPristine.run(checksum(content), content.length)
   }
   insertNode.run('added.txt', 1, 'file', 'normal', null, 5, future, 100)
@@ -82,6 +85,7 @@ test('把每条状态都判对', async (t) => {
   assert.equal(statusOf('gone.txt'), '!')
   assert.equal(statusOf('conflict.txt'), 'C')
   assert.equal(statusOf('same.txt'), undefined, '没动过的文件不应出现')
+  assert.equal(statusOf('drift.txt'), undefined, '快照尺寸和磁盘不符但内容一致时，不能判 M')
 })
 
 test('从子目录也能找到工作副本根', async (t) => {
